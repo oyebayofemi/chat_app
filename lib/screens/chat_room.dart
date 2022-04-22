@@ -1,3 +1,4 @@
+import 'package:chat_app/screens/search_delegate.dart';
 import 'package:chat_app/services.dart/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         actions: [
           IconButton(
               onPressed: () {
-                //showSearch(context: context, delegate: delegate);
+                showSearch(context: context, delegate: searchDelegate());
               },
               icon: Icon(Icons.search)),
           PopupMenuButton(
