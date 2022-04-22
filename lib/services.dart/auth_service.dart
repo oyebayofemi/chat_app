@@ -1,12 +1,15 @@
 import 'package:chat_app/model/userModel.dart';
 import 'package:chat_app/shared/snackbar.dart';
 import 'package:chat_app/shared/toast.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService extends ChangeNotifier {
   FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  UserModel? userData;
 
   UserModel? _userFromFirebase(User user) {
     if (user == null) {
@@ -16,6 +19,7 @@ class AuthService extends ChangeNotifier {
       email: user.email,
       id: user.uid,
       name: user.displayName,
+      pictureModel: user.photoURL,
     );
   }
 
@@ -25,18 +29,33 @@ class AuthService extends ChangeNotifier {
         .map((User? user) => _userFromFirebase(user!));
   }
 
-  Future<UserModel?> signUp(
-      String email, String password, BuildContext context) async {
+  Future<UserModel?> signUp(String email, String password, String username,
+      BuildContext context) async {
     try {
+      String pictureModel = 'https://i.stack.imgur.com/l60Hf.png';
       final authResult = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
 
       User? user = authResult.user;
+
+      userData = UserModel(
+        email: email,
+        id: user!.uid,
+        name: username,
+        pictureModel: pictureModel,
+      );
+
+      await _firestore
+          .collection('users')
+          .doc(_auth.currentUser!.uid)
+          .set(userData!.toJson());
+
       showToast('Registration Successful');
       notifyListeners();
       Navigator.popUntil(context, (route) => route.isFirst);
 
-      return _userFromFirebase(user!);
+      return _userFromFirebase(user);
+
       // return Future.value(true);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {

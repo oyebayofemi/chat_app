@@ -6,7 +6,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 
 class SignUpPage extends StatefulWidget {
-  SignUpPage({Key? key}) : super(key: key);
+  final Function toggleView;
+
+  SignUpPage({required this.toggleView});
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -117,11 +119,11 @@ class _SignUpPageState extends State<SignUpPage> {
                                           _isloading = true;
                                         });
                                         try {
-                                          await AuthService().signUp(
-                                              email!, password!, context);
-                                          setState(() {
-                                            _isloading = false;
-                                          });
+                                          await AuthService().signUp(email!,
+                                              password!, username!, context);
+                                          // setState(() {
+                                          //   _isloading = false;
+                                          // });
                                         } catch (e) {
                                           print(e.toString());
                                           setState(() {
@@ -176,10 +178,14 @@ class _SignUpPageState extends State<SignUpPage> {
                                     SizedBox(
                                       width: 10.w,
                                     ),
-                                    Text(
-                                      'SignIn Now',
-                                      style: TextStyle(
-                                        decoration: TextDecoration.underline,
+                                    InkWell(
+                                      onTap: () => widget.toggleView(),
+                                      child: Text(
+                                        'SIGNIN NOW',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          decoration: TextDecoration.underline,
+                                        ),
                                       ),
                                     ),
                                     Expanded(child: Container()),

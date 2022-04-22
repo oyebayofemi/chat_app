@@ -12,15 +12,36 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('CHAT'),
+        elevation: 0,
+        actions: [
+          IconButton(
+              onPressed: () {
+                //showSearch(context: context, delegate: delegate);
+              },
+              icon: Icon(Icons.search)),
+          PopupMenuButton(
+            color: Colors.white,
+            onSelected: (value) {
+              if (value == 0) {
+                AuthService().signout();
+              }
+            },
+            icon: Icon(Icons.more_vert_rounded),
+            itemBuilder: (context) => [
+              PopupMenuItem<int>(
+                value: 0,
+                child: Text('Sign Out'),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
             Text('data'),
-            FlatButton(
-                onPressed: () {
-                  AuthService().signout();
-                },
-                child: Text('Logout'))
           ],
         ),
       ),
