@@ -16,3 +16,17 @@ InputDecoration textFormFieldDecoration() {
     //focusColor: Colors.green[100],
   );
 }
+
+TextStyle profileHeader() {
+  return TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 20,
+  );
+}
+
+TextStyle profileText() {
+  return TextStyle(
+    //fontWeight: FontWeight.bold,
+    fontSize: 17,
+  );
+}

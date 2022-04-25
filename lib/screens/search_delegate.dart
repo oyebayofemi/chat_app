@@ -9,10 +9,12 @@ class searchDelegate extends SearchDelegate {
   @override
   ThemeData appBarTheme(BuildContext context) {
     return super.appBarTheme(context).copyWith(
+          primaryTextTheme:
+              Theme.of(context).primaryTextTheme.apply(bodyColor: Colors.white),
           appBarTheme: super.appBarTheme(context).appBarTheme.copyWith(
-                elevation: 0.0,
-                // backgroundColor: Color(0xff991F36),
-              ),
+              elevation: 0.0,
+              iconTheme: IconThemeData(color: Colors.white),
+              backgroundColor: Colors.green),
         );
   }
 

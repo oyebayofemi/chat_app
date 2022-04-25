@@ -1,4 +1,5 @@
 import 'package:chat_app/model/userModel.dart';
+import 'package:chat_app/provider/user_provider.dart';
 import 'package:chat_app/services.dart/auth_service.dart';
 import 'package:chat_app/wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -26,7 +27,10 @@ class ChatApp extends StatelessWidget {
           catchError: (User, UserModel) => null,
           create: (context) => context.read<AuthService>().onAuthStateChanged,
           initialData: null,
-        )
+        ),
+        ChangeNotifierProvider<UserProvider>(
+          create: (context) => UserProvider(),
+        ),
       ],
       child: ScreenUtilInit(
         designSize: Size(1080, 2340),

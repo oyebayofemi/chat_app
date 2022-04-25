@@ -29,6 +29,17 @@ class AuthService extends ChangeNotifier {
         .map((User? user) => _userFromFirebase(user!));
   }
 
+  Future<UserModel> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot documentSnapshot =
+        await _firestore.collection('users').doc(currentUser.uid).get();
+
+    notifyListeners();
+
+    return UserModel.fromSnap(documentSnapshot);
+  }
+
   Future<UserModel?> signUp(String email, String password, String username,
       BuildContext context) async {
     try {

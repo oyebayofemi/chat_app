@@ -1,3 +1,4 @@
+import 'package:chat_app/screens/profile.dart';
 import 'package:chat_app/screens/search_delegate.dart';
 import 'package:chat_app/services.dart/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -25,14 +26,25 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           PopupMenuButton(
             color: Colors.white,
             onSelected: (value) {
-              if (value == 0) {
+              if (value == 1) {
                 AuthService().signout();
+              }
+              if (value == 0) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfilePage(),
+                    ));
               }
             },
             icon: Icon(Icons.more_vert_rounded),
             itemBuilder: (context) => [
               PopupMenuItem<int>(
                 value: 0,
+                child: Text('My Profile'),
+              ),
+              PopupMenuItem<int>(
+                value: 1,
                 child: Text('Sign Out'),
               ),
             ],
