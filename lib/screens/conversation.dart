@@ -3,12 +3,17 @@ import 'package:chat_app/services.dart/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 class ConversationScreen extends StatefulWidget {
   String userName;
+  String friendID;
   String chatRoomID;
-  ConversationScreen({required this.userName, required this.chatRoomID});
+  ConversationScreen(
+      {required this.userName,
+      required this.chatRoomID,
+      required this.friendID});
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
@@ -22,7 +27,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   // Widget ChatMessageList() {}
 
   sendMessage(String messageText) {
-    var messageTimeStamp = DateTime.now().microsecondsSinceEpoch;
+    var messageTimeStamp = FieldValue.serverTimestamp();
     if (message.text != '') {
       DatabaseService()
           .addMessage(widget.chatRoomID, messageText, _auth.currentUser!.uid,
@@ -32,6 +37,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
             _auth.currentUser!.uid, messageTimeStamp);
       });
     }
+  }
+
+  bool isSender(String friendID) {
+    return friendID == _auth.currentUser!.uid;
   }
 
   @override
@@ -61,6 +70,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   children: [
                     Container(
                       child: ListView(
+                        reverse: true,
+                        padding: EdgeInsets.only(bottom: 70, top: 16),
                         children: snapshot.data!.docs
                             .map((DocumentSnapshot documentSnapshot) {
                           data = documentSnapshot.data()!;
@@ -68,8 +79,46 @@ class _ConversationScreenState extends State<ConversationScreen> {
                               ? Center(
                                   child: Text('Enter a message'),
                                 )
-                              : Container(
-                                  child: Text(data['message']),
+                              : Row(
+                                  mainAxisAlignment:
+                                      isSender(data['uid'].toString())
+                                          ? MainAxisAlignment.end
+                                          : MainAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          color:
+                                              isSender(data['uid'].toString())
+                                                  ? Colors.green[100]
+                                                  : Colors.grey[100],
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(50.r),
+                                            topRight: Radius.circular(50.r),
+                                            bottomRight:
+                                                isSender(data['uid'].toString())
+                                                    ? Radius.circular(0.r)
+                                                    : Radius.circular(50.r),
+                                            bottomLeft:
+                                                isSender(data['uid'].toString())
+                                                    ? Radius.circular(50.r)
+                                                    : Radius.circular(0.r),
+                                          )),
+                                      padding: EdgeInsets.all(16),
+                                      margin: EdgeInsets.symmetric(
+                                          horizontal: 22.h, vertical: 10.w),
+                                      child: Container(
+                                        constraints: BoxConstraints(
+                                            maxWidth: MediaQuery.of(context)
+                                                    .size
+                                                    .width -
+                                                84),
+                                        child: Text(
+                                          data['message'],
+                                          //overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 );
                         }).toList(),
                       ),

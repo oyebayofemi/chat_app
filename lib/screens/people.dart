@@ -77,6 +77,7 @@ class _PeoplePageState extends State<PeoplePage> {
           builder: (context) => ConversationScreen(
             userName: userName,
             chatRoomID: chatID,
+            friendID: friendID,
           ),
         ));
   }
