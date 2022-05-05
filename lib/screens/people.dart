@@ -31,7 +31,7 @@ class _PeoplePageState extends State<PeoplePage> {
     String uid = _auth.currentUser!.uid;
 
     List<String> users = [userName, myName];
-    List<String> usersID = [friendID, uid];
+    List<String> usersIDList = [friendID, uid];
 
     Map<String, dynamic> chatRoomMap = {
       'users': users,
@@ -55,7 +55,8 @@ class _PeoplePageState extends State<PeoplePage> {
 
               chats.doc(chatRoomID).set({
                 'usersID': {uid: null, friendID: null},
-                'users': users,
+                'users': {uid: myName, friendID: userName},
+                'usersIDList': usersIDList,
               });
               chatID = chatRoomID;
               // chats.add({
@@ -178,12 +179,16 @@ class _PeoplePageState extends State<PeoplePage> {
                                           child: Container(
                                             padding: EdgeInsets.all(10),
                                             decoration: BoxDecoration(
-                                              color: Colors.green,
+                                              color: Colors.green[300],
                                               borderRadius:
                                                   BorderRadius.circular(50.r),
                                             ),
                                             // color: Colors.green,
-                                            child: Text('Message'),
+                                            child: Text(
+                                              'Message',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
                                           ),
                                         )
                                       ],

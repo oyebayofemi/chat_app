@@ -1,10 +1,12 @@
 import 'package:chat_app/provider/user_provider.dart';
 import 'package:chat_app/services.dart/database.dart';
+import 'package:chat_app/shared/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class ConversationScreen extends StatefulWidget {
   String userName;
@@ -64,6 +66,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
             }
             if (snapshot.hasData) {
               var data;
+              var dateNow = DateFormat.jm().format(DateTime.now());
+              var date;
 
               return Container(
                 child: Stack(
@@ -75,9 +79,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         children: snapshot.data!.docs
                             .map((DocumentSnapshot documentSnapshot) {
                           data = documentSnapshot.data()!;
-                          return data == null
+                          if (data['messageDate'] != null) {
+                            date = DateFormat.jm()
+                                .format(data['messageDate'].toDate());
+                          }
+                          return data['messageDate'] == null
                               ? Center(
-                                  child: Text('Enter a message'),
+                                  child: Container(
+                                      height: 20.h,
+                                      width: 20.w,
+                                      child: CircularProgressIndicator()),
                                 )
                               : Row(
                                   mainAxisAlignment:
@@ -106,16 +117,35 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                       padding: EdgeInsets.all(16),
                                       margin: EdgeInsets.symmetric(
                                           horizontal: 22.h, vertical: 10.w),
-                                      child: Container(
-                                        constraints: BoxConstraints(
-                                            maxWidth: MediaQuery.of(context)
-                                                    .size
-                                                    .width -
-                                                84),
-                                        child: Text(
-                                          data['message'],
-                                          //overflow: TextOverflow.ellipsis,
-                                        ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            isSender(data['uid'].toString())
+                                                ? CrossAxisAlignment.end
+                                                : CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            constraints: BoxConstraints(
+                                                maxWidth: MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    84),
+                                            child: Text(
+                                              data['message'],
+                                              //overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 15.h,
+                                          ),
+                                          Container(
+                                            // color: Colors.red,
+                                            alignment: Alignment.bottomRight,
+                                            child: Text(
+                                              date,
+                                              style: conversationDateText(),
+                                            ),
+                                          )
+                                        ],
                                       ),
                                     ),
                                   ],
