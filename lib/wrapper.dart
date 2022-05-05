@@ -1,3 +1,4 @@
+import 'package:chat_app/main_page.dart';
 import 'package:chat_app/model/userModel.dart';
 import 'package:chat_app/screens/chat_room.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,7 +16,7 @@ class Wrapper extends StatelessWidget {
     return Consumer<UserModel?>(builder: (context, user, child) {
       if (user != null) {
         final userData = _auth.currentUser;
-        return ChatRoomPage();
+        return MainPage();
       } else {
         return Authenticate();
       }

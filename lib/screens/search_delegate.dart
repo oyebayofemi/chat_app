@@ -1,10 +1,15 @@
+import 'package:chat_app/provider/user_provider.dart';
+import 'package:chat_app/screens/profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 class searchDelegate extends SearchDelegate {
   CollectionReference collectionReference =
       FirebaseFirestore.instance.collection('users');
+  var currentUser = FirebaseAuth.instance.currentUser!.uid;
 
   @override
   ThemeData appBarTheme(BuildContext context) {
@@ -40,9 +45,14 @@ class searchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
+    UserProvider userProvider = Provider.of(context);
+    userProvider.getUserData();
+
+    var userData = userProvider.currentUserData;
     return StreamBuilder<QuerySnapshot>(
       stream: collectionReference
           .orderBy('id', descending: false)
+          .where('id', isNotEqualTo: currentUser)
           .snapshots()
           .asBroadcastStream(),
       builder: (context, snapshot) {
@@ -72,18 +82,38 @@ class searchDelegate extends SearchDelegate {
                             children: [
                               CircleAvatar(backgroundImage: NetworkImage(url)),
                               Expanded(
-                                child: Column(
-                                  children: [Text('$username'), Text('$email')],
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 8, 0, 8),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('$username'),
+                                      Text('$email')
+                                    ],
+                                  ),
                                 ),
                               ),
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.circular(50.r),
+                              InkWell(
+                                onTap: () {
+                                  if (userData!.email == email) {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ProfilePage(),
+                                        ));
+                                  } else {}
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(50.r),
+                                  ),
+                                  // color: Colors.green,
+                                  child: Text('Message'),
                                 ),
-                                // color: Colors.green,
-                                child: Text('Message'),
                               )
                             ],
                           ),

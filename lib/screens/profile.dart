@@ -16,28 +16,33 @@ class ProfilePage extends StatelessWidget {
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
+        elevation: 0,
         title: Text('My Profile'),
       ),
-      body: userData == null
+      body: userData!.pictureModel == null
           ? Center(
               child: CircularProgressIndicator(),
             )
           : Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
+                // mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircleAvatar(
                     radius: 40,
                     backgroundImage: NetworkImage(userData.pictureModel!),
                   ),
                   SizedBox(
-                    height: 30.h,
+                    height: 50.h,
                   ),
                   Row(
                     children: [
                       Text(
                         'Name: ',
                         style: profileHeader(),
+                      ),
+                      SizedBox(
+                        width: 10.w,
                       ),
                       Text(
                         '${userData.name}',
@@ -54,6 +59,9 @@ class ProfilePage extends StatelessWidget {
                       Text(
                         'Email: ',
                         style: profileHeader(),
+                      ),
+                      SizedBox(
+                        width: 10.w,
                       ),
                       Text(
                         '${userData.email}',

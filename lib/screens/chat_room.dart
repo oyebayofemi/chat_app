@@ -18,11 +18,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         title: Text('CHAT'),
         elevation: 0,
         actions: [
-          IconButton(
-              onPressed: () {
-                showSearch(context: context, delegate: searchDelegate());
-              },
-              icon: Icon(Icons.search)),
+          IconButton(onPressed: () {}, icon: Icon(Icons.search)),
           PopupMenuButton(
             color: Colors.white,
             onSelected: (value) {
