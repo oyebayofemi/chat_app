@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 InputDecoration textFormFieldDecoration() {
   return InputDecoration(
@@ -28,5 +29,12 @@ TextStyle profileText() {
   return TextStyle(
     //fontWeight: FontWeight.bold,
     fontSize: 17,
+  );
+}
+
+TextStyle conversationDateText() {
+  return TextStyle(
+    //fontWeight: FontWeight.bold,
+    fontSize: 35.h,
   );
 }
