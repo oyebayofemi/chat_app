@@ -1,3 +1,4 @@
+import 'package:chat_app/screens/authentication/forgot_password.dart';
 import 'package:chat_app/screens/authentication/signup.dart';
 import 'package:chat_app/services.dart/auth_service.dart';
 import 'package:chat_app/shared/validate_email.dart';
@@ -5,6 +6,7 @@ import 'package:chat_app/shared/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:provider/provider.dart';
 
 class SigninPage extends StatefulWidget {
   final Function toggleView;
@@ -53,11 +55,7 @@ class _SigninPageState extends State<SigninPage> {
                                 children: [
                                   Text(
                                     'SIGN IN',
-                                    style: TextStyle(
-                                        fontSize: 80.sp,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.green,
-                                        letterSpacing: 1),
+                                    style: authHeadersText(),
                                   ),
                                   SizedBox(
                                     height: 70.h,
@@ -98,9 +96,19 @@ class _SigninPageState extends State<SigninPage> {
                                         EdgeInsets.only(right: 15.w, top: 10.h),
                                     child: Container(
                                       alignment: Alignment.centerRight,
-                                      child: Text(
-                                        'Forgot Password?',
-                                        textAlign: TextAlign.end,
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ForgotPasswordScreen(),
+                                              ));
+                                        },
+                                        child: Text(
+                                          'Forgot Password?',
+                                          textAlign: TextAlign.end,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -162,12 +170,17 @@ class _SigninPageState extends State<SigninPage> {
                                       padding:
                                           EdgeInsets.symmetric(vertical: 10.h),
                                       onPressed: () async {
-                                        // final provider =
-                                        //     Provider.of<AuthServiceControllerProvider>(
-                                        //         context,
-                                        //         listen: false);
+                                        setState(() {
+                                          _isloading = true;
+                                        });
+                                        final provider =
+                                            Provider.of<AuthService>(context,
+                                                listen: false);
 
-                                        // provider.signInWithGoogle();
+                                        provider.signInWithGoogle();
+                                        setState(() {
+                                          _isloading = false;
+                                        });
                                       },
                                     ),
                                   ),

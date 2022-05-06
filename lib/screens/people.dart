@@ -26,7 +26,8 @@ class _PeoplePageState extends State<PeoplePage> {
 
   var chatID;
 
-  createChatRoom(String userName, String myName, String friendID) async {
+  createChatRoom(
+      String userName, String myName, String friendID, String friendURL) async {
     String chatRoomID = getChatRoomID(userName, myName);
     String uid = _auth.currentUser!.uid;
 
@@ -57,6 +58,8 @@ class _PeoplePageState extends State<PeoplePage> {
                 'usersID': {uid: null, friendID: null},
                 'users': {uid: myName, friendID: userName},
                 'usersIDList': usersIDList,
+                'chatID': chatRoomID,
+                'friendPhotoURL': friendURL,
               });
               chatID = chatRoomID;
               // chats.add({
@@ -174,7 +177,7 @@ class _PeoplePageState extends State<PeoplePage> {
                                               isloading = true;
                                             });
                                             createChatRoom(username,
-                                                userData!.name!, friendID);
+                                                userData!.name!, friendID, url);
                                           },
                                           child: Container(
                                             padding: EdgeInsets.all(10),

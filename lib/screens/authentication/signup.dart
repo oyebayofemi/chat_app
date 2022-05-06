@@ -4,6 +4,7 @@ import 'package:chat_app/shared/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:provider/provider.dart';
 
 class SignUpPage extends StatefulWidget {
   final Function toggleView;
@@ -47,11 +48,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               children: [
                                 Text(
                                   'SIGN UP',
-                                  style: TextStyle(
-                                      fontSize: 80.sp,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.green,
-                                      letterSpacing: 1),
+                                  style: authHeadersText(),
                                 ),
                                 SizedBox(
                                   height: 70.h,
@@ -121,9 +118,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                         try {
                                           await AuthService().signUp(email!,
                                               password!, username!, context);
-                                          // setState(() {
-                                          //   _isloading = false;
-                                          // });
+                                          setState(() {
+                                            _isloading = false;
+                                          });
                                         } catch (e) {
                                           print(e.toString());
                                           setState(() {
@@ -159,12 +156,17 @@ class _SignUpPageState extends State<SignUpPage> {
                                     padding:
                                         EdgeInsets.symmetric(vertical: 10.h),
                                     onPressed: () async {
-                                      // final provider =
-                                      //     Provider.of<AuthServiceControllerProvider>(
-                                      //         context,
-                                      //         listen: false);
+                                      setState(() {
+                                        _isloading = true;
+                                      });
+                                      final provider = Provider.of<AuthService>(
+                                          context,
+                                          listen: false);
 
-                                      // provider.signInWithGoogle();
+                                      provider.signInWithGoogle();
+                                      setState(() {
+                                        _isloading = false;
+                                      });
                                     },
                                   ),
                                 ),

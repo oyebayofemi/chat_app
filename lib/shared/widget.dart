@@ -38,3 +38,11 @@ TextStyle conversationDateText() {
     fontSize: 35.h,
   );
 }
+
+TextStyle authHeadersText() {
+  return TextStyle(
+      fontSize: 80.sp,
+      fontWeight: FontWeight.w700,
+      color: Colors.green,
+      letterSpacing: 1);
+}

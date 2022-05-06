@@ -94,7 +94,7 @@ class AuthService extends ChangeNotifier {
       final authResult = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
       User? user = authResult.user;
-      showSnackBar(context, 'Signed In Successful!!!');
+
       // notifyListeners();
       // Navigator.popUntil(context, (route) => route.isFirst);
 
@@ -146,11 +146,16 @@ class AuthService extends ChangeNotifier {
 
       final authResult = await _auth.signInWithCredential(credential);
 
-      // userModel = UserModel(
-      //     email: googleUser.email,
-      //     id: googleUser.id,
-      //     pictureModel: googleUser.photoUrl,
-      //     name: googleUser.displayName);
+      userData = UserModel(
+          email: googleUser.email,
+          id: _auth.currentUser!.uid,
+          pictureModel: googleUser.photoUrl,
+          name: googleUser.displayName);
+
+      await _firestore
+          .collection('users')
+          .doc(_auth.currentUser!.uid)
+          .set(userData!.toJson());
 
       User? user = authResult.user;
 
@@ -167,8 +172,20 @@ class AuthService extends ChangeNotifier {
     return _userFromFirebase(user!);
   }
 
-  resetPasswordLink(String email) {
-    _auth.sendPasswordResetEmail(email: email);
+  resetPasswordLink(String email, BuildContext context) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      showToast("Password Reset Email Sent");
+      Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') {
+        print('The email address is badly formatted.');
+        // showSnackBar(context, "No user found for that email.");
+        showToast("The email address is badly formatted.");
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future signout() async {

@@ -28,7 +28,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     userProvider.getUserData();
 
     var userData = userProvider.currentUserData;
-    var chatId;
+    // var chatId;
     var lastMessageDate;
 
     String truncate(String text, {length: 26, omission: '...'}) {
@@ -36,6 +36,16 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         return text;
       }
       return text.replaceRange(length, text.length, omission);
+    }
+
+    getfriendUrl(String friendID) async {
+      var value = await FirebaseFirestore.instance
+          .collection('users')
+          .where('id', isEqualTo: friendID)
+          .get();
+
+      // print(pictureModel);
+      return value.docs[0]['pictureModel'];
     }
 
     return Scaffold(
@@ -73,7 +83,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         ],
       ),
       body: SafeArea(
-        child: userData!.name == null
+        child: userData?.name == null
             ? Center(
                 child: CircularProgressIndicator(),
               )
@@ -93,9 +103,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                         DocumentSnapshot ds = snapshot.data.docs[index];
                         Map<String, dynamic> name = ds['users'];
                         name.remove(uid);
-                        String myName = userData.name!;
+                        String myName = userData!.name!;
 
-                        chatId = ds.id;
+                        var chatId = ds['chatID'];
 
                         List<String> temp = List.from(ds['usersIDList']);
 
@@ -108,6 +118,18 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
                         lastMessageDate = DateFormat.jm()
                             .format(ds['lastMessageTS'].toDate());
+
+                        // getfriendUrl(temp[0]);
+                        // print(temp[0]);
+                        var pictureModel = ds['friendPhotoURL'];
+
+                        //print(pictureModel);
+                        //               Future<QuerySnapshot<Map<String, dynamic>>> k =   FirebaseFirestore.instance
+                        // .collection('users')
+                        // .where('id', isEqualTo: temp[0])
+                        // .get();
+                        // k.d
+                        // print(pictureModel);
 
                         return InkWell(
                           onTap: () {
@@ -125,7 +147,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
-                                CircleAvatar(),
+                                pictureModel == null
+                                    ? Center(
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    : CircleAvatar(
+                                        backgroundImage:
+                                            NetworkImage(pictureModel),
+                                      ),
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 20),
