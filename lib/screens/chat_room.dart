@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chat_app/provider/user_provider.dart';
 import 'package:chat_app/screens/conversation.dart';
 import 'package:chat_app/screens/profile.dart';
@@ -5,6 +7,7 @@ import 'package:chat_app/screens/search_delegate.dart';
 import 'package:chat_app/services.dart/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +23,55 @@ class ChatRoomPage extends StatefulWidget {
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
   CollectionReference chats = FirebaseFirestore.instance.collection('ChatRoom');
+  CollectionReference _tokensDB =
+      FirebaseFirestore.instance.collection('Tokens');
   FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> load() async {
+    //Request permission from user.
+    if (Platform.isIOS) {
+      _fcm.requestPermission();
+    }
+
+    //Fetch the fcm token for this device.
+    String? token = await _fcm.getToken();
+
+    //Validate that it's not null.
+    assert(token != null);
+
+    await _tokensDB.doc(_auth.currentUser!.uid).set({
+      'userID': _auth.currentUser!.uid,
+      'token': token,
+    });
+    await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .update({'token': token});
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    load();
+  }
+
+  // getFriendURL(String friendID){
+  //   _tokensDB
+  //       .where("userID", isEqualTo: friendID)
+  //       .get()
+  //       .then((QuerySnapshot querySnapshot) {
+  //     querySnapshot.docs.forEach((value) {
+  //       data = value.data()! as Map<String, dynamic>;
+  //       // print(value.data()! as Map<String, dynamic>);
+  //       // print(value.get('token'));
+  //     });
+  //   });
+
+  // }
+
   @override
   Widget build(BuildContext context) {
     String uid = _auth.currentUser!.uid;
@@ -30,6 +81,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     var userData = userProvider.currentUserData;
     // var chatId;
     var lastMessageDate;
+    var data;
 
     String truncate(String text, {length: 26, omission: '...'}) {
       if (length >= text.length) {
@@ -116,12 +168,16 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                         }
                         temp.removeAt(index);
 
-                        lastMessageDate = DateFormat.jm()
-                            .format(ds['lastMessageTS'].toDate());
+                        if (ds['lastMessageTS'] != null) {
+                          lastMessageDate = DateFormat.jm()
+                              .format(ds['lastMessageTS'].toDate());
+                        }
 
                         // getfriendUrl(temp[0]);
                         // print(temp[0]);
                         var pictureModel = ds['friendPhotoURL'];
+
+                        String token = ds['token'];
 
                         //print(pictureModel);
                         //               Future<QuerySnapshot<Map<String, dynamic>>> k =   FirebaseFirestore.instance
@@ -130,6 +186,21 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                         // .get();
                         // k.d
                         // print(pictureModel);
+
+                        // print(temp[0]);
+                        // var r;
+                        // List d = _tokensDB
+                        //     .where("userID", isEqualTo: temp[0])
+                        //     .limit(1)
+                        //     .snapshots()
+                        //     .toList();
+                        //     .then((QuerySnapshot querySnapshot) {
+                        //   // print(querySnapshot.docs.first.get('token'));
+                        //   r = querySnapshot.docs.first.get('token');
+                        //   return querySnapshot.docs.first.get('token');
+                        // });
+
+                        // print(d['token']);
 
                         return InkWell(
                           onTap: () {
@@ -140,6 +211,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                     userName: name.values.first,
                                     chatRoomID: chatId,
                                     friendID: temp[0],
+                                    friendtoken: token,
                                   ),
                                 ));
                           },
@@ -177,11 +249,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                           child: Row(
                                             children: [
                                               ds['lastMessageUID'] == uid
-                                                  ? Container()
-                                                  : Icon(
+                                                  ? Icon(
                                                       Icons.check_rounded,
                                                       size: 50.r,
-                                                    ),
+                                                    )
+                                                  : Container(),
                                               Expanded(
                                                   child: Padding(
                                                 padding: const EdgeInsets.only(
@@ -193,10 +265,17 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                                   softWrap: false,
                                                 ),
                                               )),
-                                              Text(
-                                                lastMessageDate,
-                                                style:
-                                                    TextStyle(fontSize: 40.h),
+                                              Container(
+                                                child: lastMessageDate == null
+                                                    ? Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      )
+                                                    : Text(
+                                                        lastMessageDate,
+                                                        style: TextStyle(
+                                                            fontSize: 40.h),
+                                                      ),
                                               ),
                                             ],
                                           ),
