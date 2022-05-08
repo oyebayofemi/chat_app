@@ -47,6 +47,8 @@ dependencies:
   google_sign_in_web: ^0.10.1
   fluttertoast: ^8.0.9
   shared_preferences: ^2.0.13
+  firebase_messaging: ^11.3.0
+  http: ^0.13.4
 
 dev_dependencies:
   flutter_test:

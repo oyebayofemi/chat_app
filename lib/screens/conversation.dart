@@ -1,5 +1,6 @@
 import 'package:chat_app/provider/user_provider.dart';
 import 'package:chat_app/services.dart/database.dart';
+import 'package:chat_app/services.dart/fcm_notification_service.dart';
 import 'package:chat_app/shared/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,10 +13,13 @@ class ConversationScreen extends StatefulWidget {
   String userName;
   String friendID;
   String chatRoomID;
-  ConversationScreen(
-      {required this.userName,
-      required this.chatRoomID,
-      required this.friendID});
+  String friendtoken;
+  ConversationScreen({
+    required this.userName,
+    required this.chatRoomID,
+    required this.friendID,
+    required this.friendtoken,
+  });
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
@@ -25,19 +29,29 @@ class _ConversationScreenState extends State<ConversationScreen> {
   TextEditingController message = TextEditingController();
   CollectionReference chats = FirebaseFirestore.instance.collection('ChatRoom');
   FirebaseAuth _auth = FirebaseAuth.instance;
+  final FCMNotificationService _fcmNotificationService =
+      FCMNotificationService();
 
   // Widget ChatMessageList() {}
 
-  sendMessage(String messageText) {
+  sendMessage(String messageText, String myname, String token) async {
     var messageTimeStamp = FieldValue.serverTimestamp();
     if (message.text != '') {
-      DatabaseService()
+      await DatabaseService()
           .addMessage(widget.chatRoomID, messageText, _auth.currentUser!.uid,
               messageTimeStamp)
           .then((value) {
         DatabaseService().updateLastMessage(widget.chatRoomID, messageText,
             _auth.currentUser!.uid, messageTimeStamp);
       });
+      try {
+        _fcmNotificationService.sendNotificationToUser(
+            title: 'Message from!', body: messageText, fcmToken: token);
+
+        print('message semt');
+      } catch (e) {
+        print('message no send');
+      }
     }
   }
 
@@ -47,6 +61,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // print(widget.friendtoken);
+    String token = widget.friendtoken;
+    print(token);
+    UserProvider userProvider = Provider.of(context);
+    userProvider.getUserData();
+
+    var userData = userProvider.currentUserData;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -176,15 +197,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             InkWell(
                               onTap: () {
                                 sendMessage(
-                                  message.text,
-                                );
+                                    message.text, userData!.name!, token);
                                 message.clear();
                               },
                               child: Container(
-                                child: Icon(
-                                  Icons.send,
-                                  color: Colors.green,
-                                ),
+                                child: userData!.name == null
+                                    ? Center(
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    : Icon(
+                                        Icons.send,
+                                        color: Colors.green,
+                                      ),
                               ),
                             )
                           ],

@@ -3,6 +3,7 @@ import 'package:chat_app/shared/snackbar.dart';
 import 'package:chat_app/shared/toast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -10,6 +11,7 @@ class AuthService extends ChangeNotifier {
   FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   UserModel? userData;
+  FirebaseMessaging _fcm = FirebaseMessaging.instance;
 
   UserModel? _userFromFirebase(User user) {
     if (user == null) {
@@ -48,6 +50,12 @@ class AuthService extends ChangeNotifier {
           email: email, password: password);
 
       User? user = authResult.user;
+
+      //Fetch the fcm token for this device.
+      String? token = await _fcm.getToken();
+
+      //Validate that it's not null.
+      assert(token != null);
 
       userData = UserModel(
         email: email,

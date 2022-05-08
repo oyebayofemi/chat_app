@@ -23,11 +23,18 @@ class _PeoplePageState extends State<PeoplePage> {
       FirebaseFirestore.instance.collection('users');
   CollectionReference chats = FirebaseFirestore.instance.collection('ChatRoom');
   var currentUser = FirebaseAuth.instance.currentUser!.uid;
+  CollectionReference _tokensDB =
+      FirebaseFirestore.instance.collection('Tokens');
 
   var chatID;
 
   createChatRoom(
-      String userName, String myName, String friendID, String friendURL) async {
+    String userName,
+    String myName,
+    String friendID,
+    String friendURL,
+    String friendToken,
+  ) async {
     String chatRoomID = getChatRoomID(userName, myName);
     String uid = _auth.currentUser!.uid;
 
@@ -60,6 +67,7 @@ class _PeoplePageState extends State<PeoplePage> {
                 'usersIDList': usersIDList,
                 'chatID': chatRoomID,
                 'friendPhotoURL': friendURL,
+                'token': friendToken,
               });
               chatID = chatRoomID;
               // chats.add({
@@ -82,6 +90,7 @@ class _PeoplePageState extends State<PeoplePage> {
             userName: userName,
             chatRoomID: chatID,
             friendID: friendID,
+            friendtoken: friendToken,
           ),
         ));
   }
@@ -145,6 +154,21 @@ class _PeoplePageState extends State<PeoplePage> {
 
                           final String url = dsnapshot['pictureModel'];
 
+                          final String token = dsnapshot['token'];
+                          // var data = getFriendToken(friendID);
+                          // print(data);
+
+                          // var data;
+
+                          // _tokensDB
+                          //     .where("userID", isEqualTo: friendID)
+                          //     .get()
+                          //     .then((QuerySnapshot querySnapshot) {
+                          //   querySnapshot.docs.forEach((value) {
+                          //     data = value.get('token');
+                          //   });
+                          // });
+
                           return url == null
                               ? Center(
                                   child: CircularProgressIndicator(),
@@ -176,8 +200,13 @@ class _PeoplePageState extends State<PeoplePage> {
                                             setState(() {
                                               isloading = true;
                                             });
-                                            createChatRoom(username,
-                                                userData!.name!, friendID, url);
+                                            createChatRoom(
+                                              username,
+                                              userData!.name!,
+                                              friendID,
+                                              url,
+                                              token,
+                                            );
                                           },
                                           child: Container(
                                             padding: EdgeInsets.all(10),
